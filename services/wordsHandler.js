@@ -16,8 +16,8 @@ export async function getWordInfo(word) {
     };
   } catch (error) {
     return {
-      partOfSpeech: error.response?.data.title,
-      meaning: error.response.data?.message,
+      partOfSpeech: error.response?.data?.title || "Word not found",
+      meaning: error.response?.data?.message || "Unable to find this word.",
     };
   }
 }

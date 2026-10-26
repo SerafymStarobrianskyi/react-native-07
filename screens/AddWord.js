@@ -12,7 +12,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { playSound } from "../services/soundHandler";
 import { COLORS } from "../constants";
 
-function AddWord() {
+function AddWord({ route, navigation }) {
   const [text, setText] = useState();
   const [wordData, setWordData] = useState();
 
@@ -22,15 +22,33 @@ function AddWord() {
   }
 
   useEffect(() => {
+    let active = true;
     const delayDebounceFn = setTimeout(async () => {
       if (text) {
         const wordDataReceived = await getWordInfo(text);
-        setWordData(wordDataReceived);
+        if (active) setWordData(wordDataReceived);
       }
     }, 1000);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      active = false;
+      clearTimeout(delayDebounceFn);
+    };
   }, [text]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: wordData?.word ? `Adding word "${wordData.word}"` : "Adding word",
+    });
+  }, [navigation, wordData?.word]);
+
+  function onAdd() {
+    navigation.navigate({
+      name: "AllWords",
+      params: { wordData, action: "add" },
+      merge: true,
+    });
+  }
 
   return (
     <>

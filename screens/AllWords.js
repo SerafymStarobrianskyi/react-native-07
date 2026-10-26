@@ -12,8 +12,25 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { COLORS } from "../constants";
 
-function AllWords() {
+function AllWords({ route, navigation }) {
   const [myWords, setMyWords] = useState([]);
+
+  useEffect(() => {
+    const wordData = route.params?.wordData;
+    if (!wordData?.word) return;
+
+    setMyWords((previous) => {
+      if (route.params.action === "edit") {
+        return previous.map((item) =>
+          item.word === route.params.originalWord ? wordData : item
+        );
+      }
+      return previous.some((item) => item.word === wordData.word)
+        ? previous.map((item) => (item.word === wordData.word ? wordData : item))
+        : [...previous, wordData];
+    });
+    navigation.setParams({ wordData: undefined, action: undefined, originalWord: undefined });
+  }, [navigation, route.params?.wordData]);
 
   function deleteWord(wordToDelete) {
     setMyWords((prev) => prev.filter((item) => item.word != wordToDelete));
@@ -23,6 +40,7 @@ function AllWords() {
     <>
       <Pressable
         style={styles.addPressable}
+        onPress={() => navigation.navigate("AddWord")}
       >
         <Ionicons name="add-outline" size={46} color={COLORS.white} />
       </Pressable>
